@@ -102,8 +102,6 @@ namespace CustomerPortalAPI.Modules.Certificates.GraphQL
     // Payload Types
     public record CreateCertificatePayload(CertificateOutput? Certificate, string? Error);
     public record UpdateCertificatePayload(CertificateOutput? Certificate, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     // Filter Input
     public record CertificateFilterInput(
         string? CertificateName,

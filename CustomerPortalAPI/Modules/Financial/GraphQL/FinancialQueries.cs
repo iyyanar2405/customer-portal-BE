@@ -17,8 +17,6 @@ namespace CustomerPortalAPI.Modules.Financial.GraphQL
     // Payloads
     public record CreateFinancialPayload(FinancialOutput? Financial, string? Error);
     public record UpdateFinancialPayload(FinancialOutput? Financial, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     // Filter
     public record FinancialFilterInput(string? TransactionName, string? TransactionType, bool? IsActive);
 

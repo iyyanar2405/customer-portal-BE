@@ -2,6 +2,7 @@ using CustomerPortalAPI.Modules.Certificates.Entities;
 using CustomerPortalAPI.Modules.Certificates.Repositories;
 using CustomerPortalAPI.Modules.Certificates.GraphQL;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Certificates.GraphQL
 {
@@ -123,23 +124,23 @@ namespace CustomerPortalAPI.Modules.Certificates.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteCertificate(
+        public async Task<BaseDeletePayload> DeleteCertificate(
             int id,
             [Service] ICertificateRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Certificate Service Mutations
-        public async Task<DeletePayload> CreateCertificateService(
+        public async Task<BaseDeletePayload> CreateCertificateService(
             CreateCertificateServiceInput input,
             [Service] ICertificateServiceRepository repository)
         {
@@ -155,31 +156,31 @@ namespace CustomerPortalAPI.Modules.Certificates.GraphQL
                 };
 
                 await repository.AddAsync(certificateService);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteCertificateService(
+        public async Task<BaseDeletePayload> DeleteCertificateService(
             int id,
             [Service] ICertificateServiceRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Certificate Site Mutations
-        public async Task<DeletePayload> CreateCertificateSite(
+        public async Task<BaseDeletePayload> CreateCertificateSite(
             CreateCertificateSiteInput input,
             [Service] ICertificateSiteRepository repository)
         {
@@ -195,31 +196,31 @@ namespace CustomerPortalAPI.Modules.Certificates.GraphQL
                 };
 
                 await repository.AddAsync(certificateSite);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteCertificateSite(
+        public async Task<BaseDeletePayload> DeleteCertificateSite(
             int id,
             [Service] ICertificateSiteRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Certificate Additional Scope Mutations
-        public async Task<DeletePayload> CreateCertificateAdditionalScope(
+        public async Task<BaseDeletePayload> CreateCertificateAdditionalScope(
             CreateCertificateAdditionalScopeInput input,
             [Service] ICertificateAdditionalScopeRepository repository)
         {
@@ -235,26 +236,26 @@ namespace CustomerPortalAPI.Modules.Certificates.GraphQL
                 };
 
                 await repository.AddAsync(scope);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteCertificateAdditionalScope(
+        public async Task<BaseDeletePayload> DeleteCertificateAdditionalScope(
             int id,
             [Service] ICertificateAdditionalScopeRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }

@@ -1,6 +1,7 @@
 using CustomerPortalAPI.Modules.Findings.Entities;
 using CustomerPortalAPI.Modules.Findings.Repositories;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Findings.GraphQL
 {
@@ -9,8 +10,6 @@ namespace CustomerPortalAPI.Modules.Findings.GraphQL
     public record UpdateFindingInput(int Id, string? Title, string? Description, string? FindingType, string? Severity, bool? IsActive);
     public record CreateFindingPayload(FindingOutput? Finding, string? Error);
     public record UpdateFindingPayload(FindingOutput? Finding, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     [ExtendObjectType("Query")]
     public class FindingsQueries
     {
@@ -79,17 +78,18 @@ namespace CustomerPortalAPI.Modules.Findings.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteFinding(int id, [Service] IFindingRepository repository)
+        public async Task<BaseDeletePayload> DeleteFinding(int id, [Service] IFindingRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }
 }
+

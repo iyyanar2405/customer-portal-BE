@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CustomerPortal.CertificatesService")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+66a409fbaa1c29c697c39c07fe96cdbb92f8e06f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f74a9954a26bd3485f26fa91e083595b7a360b5b")]
 [assembly: System.Reflection.AssemblyProductAttribute("CustomerPortal.CertificatesService")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CustomerPortal.CertificatesService")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

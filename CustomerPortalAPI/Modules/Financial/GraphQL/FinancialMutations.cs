@@ -2,6 +2,7 @@ using CustomerPortalAPI.Modules.Financial.Entities;
 using CustomerPortalAPI.Modules.Financial.Repositories;
 using CustomerPortalAPI.Modules.Financial.GraphQL;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Financial.GraphQL
 {
@@ -52,20 +53,20 @@ namespace CustomerPortalAPI.Modules.Financial.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteFinancial(int id, [Service] IFinancialRepository repository)
+        public async Task<BaseDeletePayload> DeleteFinancial(int id, [Service] IFinancialRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> CreateInvoice(CreateInvoiceInput input, [Service] IInvoiceRepository repository)
+        public async Task<BaseDeletePayload> CreateInvoice(CreateInvoiceInput input, [Service] IInvoiceRepository repository)
         {
             try
             {
@@ -79,20 +80,20 @@ namespace CustomerPortalAPI.Modules.Financial.GraphQL
                 };
 
                 await repository.AddAsync(invoice);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateInvoice(UpdateInvoiceInput input, [Service] IInvoiceRepository repository)
+        public async Task<BaseDeletePayload> UpdateInvoice(UpdateInvoiceInput input, [Service] IInvoiceRepository repository)
         {
             try
             {
                 var invoice = await repository.GetByIdAsync(input.Id);
-                if (invoice == null) return new DeletePayload(false, "Invoice not found");
+                if (invoice == null) return new BaseDeletePayload(false, "Invoice not found");
 
                 if (input.InvoiceNumber != null) invoice.InvoiceNumber = input.InvoiceNumber;
                 if (input.CompanyId.HasValue) invoice.CompanyId = input.CompanyId.Value;
@@ -101,24 +102,24 @@ namespace CustomerPortalAPI.Modules.Financial.GraphQL
                 invoice.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(invoice);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteInvoice(int id, [Service] IInvoiceRepository repository)
+        public async Task<BaseDeletePayload> DeleteInvoice(int id, [Service] IInvoiceRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }

@@ -2,6 +2,7 @@ using CustomerPortalAPI.Modules.Master.Entities;
 using CustomerPortalAPI.Modules.Master.Repositories;
 using CustomerPortalAPI.Modules.Master.GraphQL;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Master.GraphQL
 {
@@ -83,23 +84,23 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteCountry(
+        public async Task<BaseDeletePayload> DeleteCountry(
             int id,
             [Service] ICountryRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // City Mutations
-        public async Task<DeletePayload> CreateCity(
+        public async Task<BaseDeletePayload> CreateCity(
             CreateCityInput input,
             [Service] ICityRepository repository)
         {
@@ -116,15 +117,15 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 };
 
                 await repository.AddAsync(city);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateCity(
+        public async Task<BaseDeletePayload> UpdateCity(
             UpdateCityInput input,
             [Service] ICityRepository repository)
         {
@@ -132,7 +133,7 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
             {
                 var city = await repository.GetByIdAsync(input.Id);
                 if (city == null)
-                    return new DeletePayload(false, "City not found");
+                    return new BaseDeletePayload(false, "City not found");
 
                 if (input.CityName != null) city.CityName = input.CityName;
                 if (input.CountryId.HasValue) city.CountryId = input.CountryId.Value;
@@ -142,31 +143,31 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 city.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(city);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteCity(
+        public async Task<BaseDeletePayload> DeleteCity(
             int id,
             [Service] ICityRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Company Mutations
-        public async Task<DeletePayload> CreateCompany(
+        public async Task<BaseDeletePayload> CreateCompany(
             CreateCompanyInput input,
             [Service] ICompanyRepository repository)
         {
@@ -188,15 +189,15 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 };
 
                 await repository.AddAsync(company);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateCompany(
+        public async Task<BaseDeletePayload> UpdateCompany(
             UpdateCompanyInput input,
             [Service] ICompanyRepository repository)
         {
@@ -204,7 +205,7 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
             {
                 var company = await repository.GetByIdAsync(input.Id);
                 if (company == null)
-                    return new DeletePayload(false, "Company not found");
+                    return new BaseDeletePayload(false, "Company not found");
 
                 if (input.CompanyName != null) company.CompanyName = input.CompanyName;
                 if (input.CompanyCode != null) company.CompanyCode = input.CompanyCode;
@@ -219,31 +220,31 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 company.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(company);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteCompany(
+        public async Task<BaseDeletePayload> DeleteCompany(
             int id,
             [Service] ICompanyRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Site Mutations
-        public async Task<DeletePayload> CreateSite(
+        public async Task<BaseDeletePayload> CreateSite(
             CreateSiteInput input,
             [Service] ISiteRepository repository)
         {
@@ -265,15 +266,15 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 };
 
                 await repository.AddAsync(site);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateSite(
+        public async Task<BaseDeletePayload> UpdateSite(
             UpdateSiteInput input,
             [Service] ISiteRepository repository)
         {
@@ -281,7 +282,7 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
             {
                 var site = await repository.GetByIdAsync(input.Id);
                 if (site == null)
-                    return new DeletePayload(false, "Site not found");
+                    return new BaseDeletePayload(false, "Site not found");
 
                 if (input.SiteName != null) site.SiteName = input.SiteName;
                 if (input.SiteCode != null) site.SiteCode = input.SiteCode;
@@ -296,31 +297,31 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 site.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(site);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteSite(
+        public async Task<BaseDeletePayload> DeleteSite(
             int id,
             [Service] ISiteRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // Service Mutations
-        public async Task<DeletePayload> CreateService(
+        public async Task<BaseDeletePayload> CreateService(
             CreateServiceInput input,
             [Service] IServiceRepository repository)
         {
@@ -337,15 +338,15 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 };
 
                 await repository.AddAsync(service);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateService(
+        public async Task<BaseDeletePayload> UpdateService(
             UpdateServiceInput input,
             [Service] IServiceRepository repository)
         {
@@ -353,7 +354,7 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
             {
                 var service = await repository.GetByIdAsync(input.Id);
                 if (service == null)
-                    return new DeletePayload(false, "Service not found");
+                    return new BaseDeletePayload(false, "Service not found");
 
                 if (input.ServiceName != null) service.ServiceName = input.ServiceName;
                 if (input.ServiceCode != null) service.ServiceCode = input.ServiceCode;
@@ -363,26 +364,26 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
                 service.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(service);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteService(
+        public async Task<BaseDeletePayload> DeleteService(
             int id,
             [Service] IServiceRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }

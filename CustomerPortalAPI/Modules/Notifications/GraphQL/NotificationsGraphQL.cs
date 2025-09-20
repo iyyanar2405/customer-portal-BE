@@ -1,6 +1,7 @@
 using CustomerPortalAPI.Modules.Notifications.Entities;
 using CustomerPortalAPI.Modules.Notifications.Repositories;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Notifications.GraphQL
 {
@@ -9,8 +10,6 @@ namespace CustomerPortalAPI.Modules.Notifications.GraphQL
     public record UpdateNotificationInput(int Id, string? Title, string? Message, string? Priority, string? Status, bool? IsActive);
     public record CreateNotificationPayload(NotificationOutput? Notification, string? Error);
     public record UpdateNotificationPayload(NotificationOutput? Notification, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     [ExtendObjectType("Query")]
     public class NotificationsQueries
     {
@@ -77,17 +76,18 @@ namespace CustomerPortalAPI.Modules.Notifications.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteNotification(int id, [Service] INotificationRepository repository)
+        public async Task<BaseDeletePayload> DeleteNotification(int id, [Service] INotificationRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }
 }
+

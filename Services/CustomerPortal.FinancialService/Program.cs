@@ -1,41 +1,74 @@
+using Microsoft.EntityFrameworkCore;
+using CustomerPortal.FinancialService.Data;
+using CustomerPortal.FinancialService.Repositories;
+using CustomerPortal.FinancialService.GraphQL;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Add database context
+builder.Services.AddDbContext<FinancialDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(FinancialMappingProfile));
+
+// Add repositories
+builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<ITaxRateRepository, TaxRateRepository>();
+builder.Services.AddScoped<IFinancialReportingRepository, FinancialReportingRepository>();
+
+// Add GraphQL
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddProjections()
+    .AddFiltering()
+    .AddSorting();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Ensure database is created and seeded
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<FinancialDbContext>();
+    try
+    {
+        Console.WriteLine("Creating database...");
+        await context.Database.EnsureCreatedAsync();
+        
+        // Check if database has data
+        var hasData = await context.Companies.AnyAsync();
+        if (hasData)
+        {
+            Console.WriteLine("Database already contains data.");
+        }
+        else
+        {
+            Console.WriteLine("Database created and seeded successfully.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error setting up database: {ex.Message}");
+    }
+}
+
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
+app.UseRouting();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapGraphQL();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+Console.WriteLine("Financial Service is running on http://localhost:5007");
+Console.WriteLine("GraphQL endpoint: /graphql");
+Console.WriteLine("GraphQL Playground: /graphql (in development mode)");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

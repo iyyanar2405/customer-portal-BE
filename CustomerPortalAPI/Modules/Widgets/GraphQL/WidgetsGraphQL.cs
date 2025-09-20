@@ -1,13 +1,28 @@
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Widgets.GraphQL
 {
-    public record WidgetConfig(string Id, string Title, string Type, int Position, object Configuration, bool IsVisible);
-    public record CreateWidgetInput(string Title, string Type, int Position, object Configuration);
-    public record UpdateWidgetInput(string Id, string? Title, int? Position, object? Configuration, bool? IsVisible);
+    public record WidgetConfig(string Id, string Title, string Type, int Position, string Configuration, bool IsVisible);
+    
+    public class CreateWidgetInput
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public int Position { get; set; }
+        public string Configuration { get; set; } = "{}";
+    }
+    
+    public class UpdateWidgetInput
+    {
+        public string Id { get; set; } = string.Empty;
+        public string? Title { get; set; }
+        public int? Position { get; set; }
+        public string? Configuration { get; set; }
+        public bool? IsVisible { get; set; }
+    }
     public record CreateWidgetPayload(WidgetConfig? Widget, string? Error);
     public record UpdateWidgetPayload(WidgetConfig? Widget, string? Error);
-    public record DeletePayload(bool Success, string? Error);
 
     public record ChartData(string Label, double Value, string? Color);
     public record AuditWidget(IEnumerable<ChartData> AuditsByStatus, IEnumerable<ChartData> AuditsByType);
@@ -22,10 +37,10 @@ namespace CustomerPortalAPI.Modules.Widgets.GraphQL
             await Task.Delay(1);
             return new List<WidgetConfig>
             {
-                new("widget1", "Audit Status", "chart", 1, new { chartType = "pie", dataSource = "audits" }, true),
-                new("widget2", "Recent Findings", "list", 2, new { itemCount = 5, sortBy = "date" }, true),
-                new("widget3", "Certificate Expiry", "alert", 3, new { daysAhead = 30, alertLevel = "warning" }, true),
-                new("widget4", "System Metrics", "gauge", 4, new { metric = "performance", threshold = 80 }, false)
+                new("widget1", "Audit Status", "chart", 1, "{\"chartType\":\"pie\",\"dataSource\":\"audits\"}", true),
+                new("widget2", "Recent Findings", "list", 2, "{\"itemCount\":5,\"sortBy\":\"date\"}", true),
+                new("widget3", "Certificate Expiry", "alert", 3, "{\"daysAhead\":30,\"alertLevel\":\"warning\"}", true),
+                new("widget4", "System Metrics", "gauge", 4, "{\"metric\":\"performance\",\"threshold\":80}", false)
             };
         }
 
@@ -34,7 +49,7 @@ namespace CustomerPortalAPI.Modules.Widgets.GraphQL
             // Mock implementation - replace with actual repository calls
             await Task.Delay(1);
             return id == "widget1" 
-                ? new WidgetConfig("widget1", "Audit Status", "chart", 1, new { chartType = "pie", dataSource = "audits" }, true)
+                ? new WidgetConfig("widget1", "Audit Status", "chart", 1, "{\"chartType\":\"pie\",\"dataSource\":\"audits\"}", true)
                 : null;
         }
 
@@ -134,7 +149,7 @@ namespace CustomerPortalAPI.Modules.Widgets.GraphQL
                     input.Title ?? "Updated Widget",
                     "chart",
                     input.Position ?? 1,
-                    input.Configuration ?? new { },
+                    input.Configuration ?? "{}",
                     input.IsVisible ?? true
                 );
                 return new UpdateWidgetPayload(widget, null);
@@ -145,17 +160,17 @@ namespace CustomerPortalAPI.Modules.Widgets.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteWidget(string id)
+        public async Task<BaseDeletePayload> DeleteWidget(string id)
         {
             try
             {
                 // Mock implementation - replace with actual repository calls
                 await Task.Delay(1);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }

@@ -1,6 +1,7 @@
 using CustomerPortalAPI.Modules.Contracts.Entities;
 using CustomerPortalAPI.Modules.Contracts.Repositories;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Contracts.GraphQL
 {
@@ -9,7 +10,6 @@ namespace CustomerPortalAPI.Modules.Contracts.GraphQL
     public record UpdateContractInput(int Id, string? ContractNumber, string? ContractName, DateTime? StartDate, DateTime? EndDate, bool? IsActive);
     public record CreateContractPayload(ContractOutput? Contract, string? Error);
     public record UpdateContractPayload(ContractOutput? Contract, string? Error);
-    public record DeletePayload(bool Success, string? Error);
 
     [ExtendObjectType("Query")]
     public class ContractsQueries
@@ -84,16 +84,16 @@ namespace CustomerPortalAPI.Modules.Contracts.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteContract(int id, [Service] IContractRepository repository)
+        public async Task<BaseDeletePayload> DeleteContract(int id, [Service] IContractRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }

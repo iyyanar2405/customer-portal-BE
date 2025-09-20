@@ -1,6 +1,7 @@
 using CustomerPortalAPI.Modules.Users.Entities;
 using CustomerPortalAPI.Modules.Users.Repositories;
 using CustomerPortalAPI.Modules.Users.GraphQL;
+using CustomerPortalAPI.Modules.Shared;
 using HotChocolate;
 
 namespace CustomerPortalAPI.Modules.Users.GraphQL
@@ -105,23 +106,23 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteUser(
+        public async Task<BaseDeletePayload> DeleteUser(
             int id,
             [Service] IUserRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // User Role Mutations
-        public async Task<DeletePayload> CreateUserRole(
+        public async Task<BaseDeletePayload> CreateUserRole(
             CreateUserRoleInput input,
             [Service] IUserRoleRepository repository)
         {
@@ -137,15 +138,15 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
                 };
 
                 await repository.AddAsync(userRole);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateUserRole(
+        public async Task<BaseDeletePayload> UpdateUserRole(
             UpdateUserRoleInput input,
             [Service] IUserRoleRepository repository)
         {
@@ -153,36 +154,36 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
             {
                 var userRole = await repository.GetByIdAsync(input.Id);
                 if (userRole == null)
-                    return new DeletePayload(false, "User role not found");
+                    return new BaseDeletePayload(false, "User role not found");
 
                 if (input.IsActive.HasValue) userRole.IsActive = input.IsActive.Value;
 
                 await repository.UpdateAsync(userRole);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteUserRole(
+        public async Task<BaseDeletePayload> DeleteUserRole(
             int id,
             [Service] IUserRoleRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // User Company Access Mutations
-        public async Task<DeletePayload> CreateUserCompanyAccess(
+        public async Task<BaseDeletePayload> CreateUserCompanyAccess(
             CreateUserCompanyAccessInput input,
             [Service] IUserCompanyAccessRepository repository)
         {
@@ -199,15 +200,15 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
                 };
 
                 await repository.AddAsync(access);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateUserCompanyAccess(
+        public async Task<BaseDeletePayload> UpdateUserCompanyAccess(
             UpdateUserCompanyAccessInput input,
             [Service] IUserCompanyAccessRepository repository)
         {
@@ -215,37 +216,37 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
             {
                 var access = await repository.GetByIdAsync(input.Id);
                 if (access == null)
-                    return new DeletePayload(false, "User company access not found");
+                    return new BaseDeletePayload(false, "User company access not found");
 
                 if (input.AccessLevel != null) access.AccessLevel = input.AccessLevel;
                 if (input.IsActive.HasValue) access.IsActive = input.IsActive.Value;
 
                 await repository.UpdateAsync(access);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteUserCompanyAccess(
+        public async Task<BaseDeletePayload> DeleteUserCompanyAccess(
             int id,
             [Service] IUserCompanyAccessRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
         // User Preference Mutations
-        public async Task<DeletePayload> CreateUserPreference(
+        public async Task<BaseDeletePayload> CreateUserPreference(
             CreateUserPreferenceInput input,
             [Service] IUserPreferenceRepository repository)
         {
@@ -260,15 +261,15 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
                 };
 
                 await repository.AddAsync(preference);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> UpdateUserPreference(
+        public async Task<BaseDeletePayload> UpdateUserPreference(
             UpdateUserPreferenceInput input,
             [Service] IUserPreferenceRepository repository)
         {
@@ -276,33 +277,34 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
             {
                 var preference = await repository.GetByIdAsync(input.Id);
                 if (preference == null)
-                    return new DeletePayload(false, "User preference not found");
+                    return new BaseDeletePayload(false, "User preference not found");
 
                 if (input.PreferenceValue != null) preference.PreferenceValue = input.PreferenceValue;
                 preference.ModifiedDate = DateTime.UtcNow;
 
                 await repository.UpdateAsync(preference);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
 
-        public async Task<DeletePayload> DeleteUserPreference(
+        public async Task<BaseDeletePayload> DeleteUserPreference(
             int id,
             [Service] IUserPreferenceRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }
 }
+

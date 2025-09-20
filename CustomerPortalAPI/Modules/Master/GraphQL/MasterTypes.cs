@@ -28,8 +28,6 @@ namespace CustomerPortalAPI.Modules.Master.GraphQL
     // Payload Types
     public record CreateCountryPayload(CountryOutput? Country, string? Error);
     public record UpdateCountryPayload(CountryOutput? Country, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     // Filter Input
     public record MasterFilterInput(string? Name, bool? IsActive);
 }

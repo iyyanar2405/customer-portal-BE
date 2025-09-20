@@ -1,4 +1,5 @@
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Users.GraphQL
 {
@@ -100,7 +101,6 @@ namespace CustomerPortalAPI.Modules.Users.GraphQL
     // Payload Types
     public record CreateUserPayload(UserOutput? User, string? Error);
     public record UpdateUserPayload(UserOutput? User, string? Error);
-    public record DeletePayload(bool Success, string? Error);
 
     // Filter Input
     public record UserFilterInput(

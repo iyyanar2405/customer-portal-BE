@@ -1,6 +1,7 @@
 using CustomerPortalAPI.Modules.Settings.Entities;
 using CustomerPortalAPI.Modules.Settings.Repositories;
 using HotChocolate;
+using CustomerPortalAPI.Modules.Shared;
 
 namespace CustomerPortalAPI.Modules.Settings.GraphQL
 {
@@ -9,8 +10,6 @@ namespace CustomerPortalAPI.Modules.Settings.GraphQL
     public record UpdateTrainingInput(int Id, string? TrainingName, string? Description, bool? IsActive);
     public record CreateTrainingPayload(TrainingOutput? Training, string? Error);
     public record UpdateTrainingPayload(TrainingOutput? Training, string? Error);
-    public record DeletePayload(bool Success, string? Error);
-
     [ExtendObjectType("Query")]
     public class SettingsQueries
     {
@@ -74,17 +73,18 @@ namespace CustomerPortalAPI.Modules.Settings.GraphQL
             }
         }
 
-        public async Task<DeletePayload> DeleteTraining(int id, [Service] ITrainingRepository repository)
+        public async Task<BaseDeletePayload> DeleteTraining(int id, [Service] ITrainingRepository repository)
         {
             try
             {
                 await repository.DeleteAsync(id);
-                return new DeletePayload(true, null);
+                return new BaseDeletePayload(true, null);
             }
             catch (Exception ex)
             {
-                return new DeletePayload(false, ex.Message);
+                return new BaseDeletePayload(false, ex.Message);
             }
         }
     }
 }
+
