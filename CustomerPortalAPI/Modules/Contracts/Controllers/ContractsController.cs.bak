@@ -1,0 +1,124 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Contracts.Repositories;
+using CustomerPortalAPI.Modules.Contracts.Entities;
+using CustomerPortalAPI.Modules.Contracts.GraphQL;
+
+namespace CustomerPortalAPI.Modules.Contracts.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ContractsController : ControllerBase
+    {
+        private readonly IContractRepository _contractRepository;
+
+        public ContractsController(IContractRepository contractRepository)
+        {
+            _contractRepository = contractRepository;
+        }
+
+        /// <summary>
+        /// Get all contracts
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ContractType>>> GetContracts(
+            [FromQuery] int? companyId = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var contracts = await _contractRepository.GetAllAsync();
+
+                if (companyId.HasValue)
+                    contracts = contracts.Where(c => c.CompanyId == companyId);
+
+                if (!string.IsNullOrEmpty(status))
+                    contracts = contracts.Where(c => c.Status == status);
+
+                var pagedContracts = contracts.Skip(skip).Take(take);
+                var result = pagedContracts.Select(MapToContractType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get contract by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ContractType>> GetContract(int id)
+        {
+            try
+            {
+                var contract = await _contractRepository.GetByIdAsync(id);
+                if (contract == null)
+                    return NotFound(new { message = $"Contract with ID {id} not found" });
+
+                return Ok(MapToContractType(contract));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get contracts by company
+        /// </summary>
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<IEnumerable<ContractType>>> GetContractsByCompany(int companyId)
+        {
+            try
+            {
+                var contracts = await _contractRepository.GetByCompanyAsync(companyId);
+                var result = contracts.Select(MapToContractType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get active contracts
+        /// </summary>
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<ContractType>>> GetActiveContracts()
+        {
+            try
+            {
+                var contracts = await _contractRepository.GetActiveContractsAsync();
+                var result = contracts.Select(MapToContractType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        private static ContractType MapToContractType(Contract contract)
+        {
+            return new ContractType(
+                Id: contract.ContractId,
+                ContractNumber: contract.ContractNumber,
+                CompanyId: contract.CompanyId,
+                ContractName: contract.ContractName,
+                ContractType: contract.ContractType,
+                Status: contract.Status,
+                StartDate: contract.StartDate,
+                EndDate: contract.EndDate,
+                ContractValue: contract.ContractValue,
+                Currency: contract.Currency,
+                IsActive: contract.IsActive,
+                CreatedDate: contract.CreatedDate,
+                ModifiedDate: contract.ModifiedDate
+            );
+        }
+    }
+}

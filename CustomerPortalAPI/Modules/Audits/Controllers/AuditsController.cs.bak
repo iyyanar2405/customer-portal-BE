@@ -1,0 +1,311 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Audits.Repositories;
+using CustomerPortalAPI.Modules.Audits.Entities;
+using CustomerPortalAPI.Modules.Audits.GraphQL;
+
+namespace CustomerPortalAPI.Modules.Audits.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AuditsController : ControllerBase
+    {
+        private readonly IAuditRepository _auditRepository;
+
+        public AuditsController(IAuditRepository auditRepository)
+        {
+            _auditRepository = auditRepository;
+        }
+
+        /// <summary>
+        /// Get all audits with optional filtering and pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetAudits(
+            [FromQuery] string? status = null,
+            [FromQuery] string? type = null,
+            [FromQuery] int? companyId = null,
+            [FromQuery] DateTime? startDateFrom = null,
+            [FromQuery] DateTime? startDateTo = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var audits = await _auditRepository.GetAllAsync();
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(status))
+                    audits = audits.Where(a => a.Status == status);
+
+                if (!string.IsNullOrEmpty(type))
+                    audits = audits.Where(a => a.Type == type);
+
+                if (companyId.HasValue)
+                    audits = audits.Where(a => a.CompanyId == companyId);
+
+                if (startDateFrom.HasValue)
+                    audits = audits.Where(a => a.StartDate >= startDateFrom);
+
+                if (startDateTo.HasValue)
+                    audits = audits.Where(a => a.StartDate <= startDateTo);
+
+                // Apply pagination
+                var pagedAudits = audits.Skip(skip).Take(take);
+
+                var result = pagedAudits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get audit by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<AuditType>> GetAudit(int id)
+        {
+            try
+            {
+                var audit = await _auditRepository.GetByIdAsync(id);
+                if (audit == null)
+                    return NotFound(new { message = $"Audit with ID {id} not found" });
+
+                return Ok(MapToAuditType(audit));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Create a new audit
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<AuditType>> CreateAudit([FromBody] AuditInput auditInput)
+        {
+            try
+            {
+                var audit = new Audit
+                {
+                    Sites = auditInput.Sites,
+                    Services = auditInput.Services,
+                    CompanyId = auditInput.CompanyId,
+                    Status = auditInput.Status,
+                    StartDate = auditInput.StartDate,
+                    EndDate = auditInput.EndDate,
+                    LeadAuditor = auditInput.LeadAuditor,
+                    Type = auditInput.Type,
+                    AuditNumber = auditInput.AuditNumber,
+                    Description = auditInput.Description,
+                    AuditTypeId = auditInput.AuditTypeId,
+                    CreatedBy = auditInput.CreatedBy,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedBy = auditInput.CreatedBy,
+                    ModifiedDate = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                var createdAudit = await _auditRepository.AddAsync(audit);
+                return CreatedAtAction(nameof(GetAudit), new { id = createdAudit.AuditId }, MapToAuditType(createdAudit));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update an existing audit
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<ActionResult<AuditType>> UpdateAudit(int id, [FromBody] AuditInput auditInput)
+        {
+            try
+            {
+                var existingAudit = await _auditRepository.GetByIdAsync(id);
+                if (existingAudit == null)
+                    return NotFound(new { message = $"Audit with ID {id} not found" });
+
+                // Update properties
+                existingAudit.Sites = auditInput.Sites;
+                existingAudit.Services = auditInput.Services;
+                existingAudit.CompanyId = auditInput.CompanyId;
+                existingAudit.Status = auditInput.Status;
+                existingAudit.StartDate = auditInput.StartDate;
+                existingAudit.EndDate = auditInput.EndDate;
+                existingAudit.LeadAuditor = auditInput.LeadAuditor;
+                existingAudit.Type = auditInput.Type;
+                existingAudit.AuditNumber = auditInput.AuditNumber;
+                existingAudit.Description = auditInput.Description;
+                existingAudit.AuditTypeId = auditInput.AuditTypeId;
+                existingAudit.ModifiedBy = auditInput.ModifiedBy;
+                existingAudit.ModifiedDate = DateTime.UtcNow;
+
+                var updatedAudit = await _auditRepository.UpdateAsync(existingAudit);
+                return Ok(MapToAuditType(updatedAudit));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete an audit
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteAudit(int id)
+        {
+            try
+            {
+                var audit = await _auditRepository.GetByIdAsync(id);
+                if (audit == null)
+                    return NotFound(new { message = $"Audit with ID {id} not found" });
+
+                await _auditRepository.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get audits by company
+        /// </summary>
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetAuditsByCompany(int companyId)
+        {
+            try
+            {
+                var audits = await _auditRepository.GetAuditsByCompanyAsync(companyId);
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get audits by status
+        /// </summary>
+        [HttpGet("status/{status}")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetAuditsByStatus(string status)
+        {
+            try
+            {
+                var audits = await _auditRepository.GetAuditsByStatusAsync(status);
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get audits by date range
+        /// </summary>
+        [HttpGet("daterange")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetAuditsByDateRange(
+            [FromQuery] DateTime startDate,
+            [FromQuery] DateTime endDate)
+        {
+            try
+            {
+                var audits = await _auditRepository.GetAuditsByDateRangeAsync(startDate, endDate);
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get upcoming audits
+        /// </summary>
+        [HttpGet("upcoming")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetUpcomingAudits([FromQuery] int days = 30)
+        {
+            try
+            {
+                var audits = await _auditRepository.GetUpcomingAuditsAsync(days);
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get active audits
+        /// </summary>
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetActiveAudits()
+        {
+            try
+            {
+                var audits = await _auditRepository.GetActiveAuditsAsync();
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get overdue audits
+        /// </summary>
+        [HttpGet("overdue")]
+        public async Task<ActionResult<IEnumerable<AuditType>>> GetOverdueAudits()
+        {
+            try
+            {
+                var audits = await _auditRepository.GetOverdueAuditsAsync();
+                var result = audits.Select(MapToAuditType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        private static AuditType MapToAuditType(Audit audit)
+        {
+            return new AuditType(
+                Id: audit.AuditId,
+                Sites: audit.Sites,
+                Services: audit.Services,
+                CompanyId: audit.CompanyId,
+                Status: audit.Status,
+                StartDate: audit.StartDate,
+                EndDate: audit.EndDate,
+                LeadAuditor: audit.LeadAuditor,
+                Type: audit.Type,
+                AuditNumber: audit.AuditNumber,
+                Description: audit.Description,
+                AuditTypeId: audit.AuditTypeId,
+                CreatedBy: audit.CreatedBy,
+                CreatedDate: audit.CreatedDate,
+                ModifiedBy: audit.ModifiedBy,
+                ModifiedDate: audit.ModifiedDate,
+                IsActive: audit.IsActive
+            );
+        }
+    }
+}

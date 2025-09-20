@@ -1,0 +1,141 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Certificates.Repositories;
+using CustomerPortalAPI.Modules.Certificates.Entities;
+using CustomerPortalAPI.Modules.Certificates.GraphQL;
+
+namespace CustomerPortalAPI.Modules.Certificates.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CertificatesController : ControllerBase
+    {
+        private readonly ICertificateRepository _certificateRepository;
+
+        public CertificatesController(ICertificateRepository certificateRepository)
+        {
+            _certificateRepository = certificateRepository;
+        }
+
+        /// <summary>
+        /// Get all certificates
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CertificateType>>> GetCertificates(
+            [FromQuery] int? companyId = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var certificates = await _certificateRepository.GetAllAsync();
+
+                if (companyId.HasValue)
+                    certificates = certificates.Where(c => c.CompanyId == companyId);
+
+                if (!string.IsNullOrEmpty(status))
+                    certificates = certificates.Where(c => c.Status == status);
+
+                var pagedCertificates = certificates.Skip(skip).Take(take);
+                var result = pagedCertificates.Select(MapToCertificateType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get certificate by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CertificateType>> GetCertificate(int id)
+        {
+            try
+            {
+                var certificate = await _certificateRepository.GetByIdAsync(id);
+                if (certificate == null)
+                    return NotFound(new { message = $"Certificate with ID {id} not found" });
+
+                return Ok(MapToCertificateType(certificate));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get certificates by company
+        /// </summary>
+        [HttpGet("company/{companyId}")]
+        public async Task<ActionResult<IEnumerable<CertificateType>>> GetCertificatesByCompany(int companyId)
+        {
+            try
+            {
+                var certificates = await _certificateRepository.GetByCompanyAsync(companyId);
+                var result = certificates.Select(MapToCertificateType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get certificates by status
+        /// </summary>
+        [HttpGet("status/{status}")]
+        public async Task<ActionResult<IEnumerable<CertificateType>>> GetCertificatesByStatus(string status)
+        {
+            try
+            {
+                var certificates = await _certificateRepository.GetByStatusAsync(status);
+                var result = certificates.Select(MapToCertificateType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get expiring certificates
+        /// </summary>
+        [HttpGet("expiring")]
+        public async Task<ActionResult<IEnumerable<CertificateType>>> GetExpiringCertificates([FromQuery] int days = 90)
+        {
+            try
+            {
+                var certificates = await _certificateRepository.GetExpiringCertificatesAsync(days);
+                var result = certificates.Select(MapToCertificateType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        private static CertificateType MapToCertificateType(Certificate certificate)
+        {
+            return new CertificateType(
+                Id: certificate.CertificateId,
+                CertificateNumber: certificate.CertificateNumber,
+                CompanyId: certificate.CompanyId,
+                Standard: certificate.Standard,
+                Scope: certificate.Scope,
+                Status: certificate.Status,
+                IssueDate: certificate.IssueDate,
+                ExpiryDate: certificate.ExpiryDate,
+                IssuingBody: certificate.IssuingBody,
+                IsActive: certificate.IsActive,
+                CreatedDate: certificate.CreatedDate,
+                ModifiedDate: certificate.ModifiedDate
+            );
+        }
+    }
+}

@@ -1,0 +1,332 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Users.Repositories;
+using CustomerPortalAPI.Modules.Users.Entities;
+using CustomerPortalAPI.Modules.Users.GraphQL;
+
+namespace CustomerPortalAPI.Modules.Users.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UsersController : ControllerBase
+    {
+        private readonly IUserRepository _userRepository;
+
+        public UsersController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
+
+        /// <summary>
+        /// Get all users with optional filtering and pagination
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserType>>> GetUsers(
+            [FromQuery] string? department = null,
+            [FromQuery] string? position = null,
+            [FromQuery] bool? isActive = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var users = await _userRepository.GetAllAsync();
+
+                // Apply filters
+                if (!string.IsNullOrEmpty(department))
+                    users = users.Where(u => u.Department == department);
+
+                if (!string.IsNullOrEmpty(position))
+                    users = users.Where(u => u.Position == position);
+
+                if (isActive.HasValue)
+                    users = users.Where(u => u.IsActive == isActive);
+
+                // Apply pagination
+                var pagedUsers = users.Skip(skip).Take(take);
+
+                var result = pagedUsers.Select(MapToUserType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get user by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserType>> GetUser(int id)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(id);
+                if (user == null)
+                    return NotFound(new { message = $"User with ID {id} not found" });
+
+                return Ok(MapToUserType(user));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Create a new user
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<UserType>> CreateUser([FromBody] UserInput userInput)
+        {
+            try
+            {
+                // Check if username or email already exists
+                var existingUser = await _userRepository.GetByUsernameAsync(userInput.Username);
+                if (existingUser != null)
+                    return Conflict(new { message = "Username already exists" });
+
+                existingUser = await _userRepository.GetByEmailAsync(userInput.Email);
+                if (existingUser != null)
+                    return Conflict(new { message = "Email already exists" });
+
+                var user = new User
+                {
+                    Username = userInput.Username,
+                    Email = userInput.Email,
+                    FirstName = userInput.FirstName,
+                    LastName = userInput.LastName,
+                    PasswordHash = userInput.PasswordHash, // In real app, hash the password
+                    Phone = userInput.Phone,
+                    Position = userInput.Position,
+                    Department = userInput.Department,
+                    TimeZone = userInput.TimeZone ?? "UTC",
+                    Language = userInput.Language ?? "EN",
+                    IsActive = true,
+                    IsEmailVerified = false,
+                    TwoFactorEnabled = false,
+                    CreatedDate = DateTime.UtcNow,
+                    ModifiedDate = DateTime.UtcNow,
+                    CreatedBy = userInput.CreatedBy,
+                    ModifiedBy = userInput.CreatedBy
+                };
+
+                var createdUser = await _userRepository.AddAsync(user);
+                return CreatedAtAction(nameof(GetUser), new { id = createdUser.UserId }, MapToUserType(createdUser));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Update an existing user
+        /// </summary>
+        [HttpPut("{id}")]
+        public async Task<ActionResult<UserType>> UpdateUser(int id, [FromBody] UserInput userInput)
+        {
+            try
+            {
+                var existingUser = await _userRepository.GetByIdAsync(id);
+                if (existingUser == null)
+                    return NotFound(new { message = $"User with ID {id} not found" });
+
+                // Update properties
+                existingUser.FirstName = userInput.FirstName;
+                existingUser.LastName = userInput.LastName;
+                existingUser.Email = userInput.Email;
+                existingUser.Phone = userInput.Phone;
+                existingUser.Position = userInput.Position;
+                existingUser.Department = userInput.Department;
+                existingUser.TimeZone = userInput.TimeZone ?? existingUser.TimeZone;
+                existingUser.Language = userInput.Language ?? existingUser.Language;
+                existingUser.ModifiedBy = userInput.ModifiedBy;
+                existingUser.ModifiedDate = DateTime.UtcNow;
+
+                var updatedUser = await _userRepository.UpdateAsync(existingUser);
+                return Ok(MapToUserType(updatedUser));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete a user (soft delete by setting IsActive to false)
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUser(int id)
+        {
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(id);
+                if (user == null)
+                    return NotFound(new { message = $"User with ID {id} not found" });
+
+                await _userRepository.DeactivateUserAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get user by username
+        /// </summary>
+        [HttpGet("username/{username}")]
+        public async Task<ActionResult<UserType>> GetUserByUsername(string username)
+        {
+            try
+            {
+                var user = await _userRepository.GetByUsernameAsync(username);
+                if (user == null)
+                    return NotFound(new { message = $"User with username '{username}' not found" });
+
+                return Ok(MapToUserType(user));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get user by email
+        /// </summary>
+        [HttpGet("email/{email}")]
+        public async Task<ActionResult<UserType>> GetUserByEmail(string email)
+        {
+            try
+            {
+                var user = await _userRepository.GetByEmailAsync(email);
+                if (user == null)
+                    return NotFound(new { message = $"User with email '{email}' not found" });
+
+                return Ok(MapToUserType(user));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get users by department
+        /// </summary>
+        [HttpGet("department/{department}")]
+        public async Task<ActionResult<IEnumerable<UserType>>> GetUsersByDepartment(string department)
+        {
+            try
+            {
+                var users = await _userRepository.GetByDepartmentAsync(department);
+                var result = users.Select(MapToUserType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get active users
+        /// </summary>
+        [HttpGet("active")]
+        public async Task<ActionResult<IEnumerable<UserType>>> GetActiveUsers()
+        {
+            try
+            {
+                var users = await _userRepository.GetActiveUsersAsync();
+                var result = users.Select(MapToUserType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Search users by name or email
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<UserType>>> SearchUsers([FromQuery] string searchTerm)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                    return BadRequest(new { message = "Search term is required" });
+
+                var users = await _userRepository.SearchUsersAsync(searchTerm);
+                var result = users.Select(MapToUserType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Activate user
+        /// </summary>
+        [HttpPost("{id}/activate")]
+        public async Task<ActionResult> ActivateUser(int id)
+        {
+            try
+            {
+                await _userRepository.ActivateUserAsync(id);
+                return Ok(new { message = "User activated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Deactivate user
+        /// </summary>
+        [HttpPost("{id}/deactivate")]
+        public async Task<ActionResult> DeactivateUser(int id)
+        {
+            try
+            {
+                await _userRepository.DeactivateUserAsync(id);
+                return Ok(new { message = "User deactivated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        private static UserType MapToUserType(User user)
+        {
+            return new UserType(
+                Id: user.UserId,
+                Username: user.Username,
+                Email: user.Email,
+                FirstName: user.FirstName,
+                LastName: user.LastName,
+                Phone: user.Phone,
+                Position: user.Position,
+                Department: user.Department,
+                TimeZone: user.TimeZone,
+                Language: user.Language,
+                IsActive: user.IsActive,
+                IsEmailVerified: user.IsEmailVerified,
+                TwoFactorEnabled: user.TwoFactorEnabled,
+                LastLoginDate: user.LastLoginDate,
+                CreatedDate: user.CreatedDate,
+                ModifiedDate: user.ModifiedDate,
+                CreatedBy: user.CreatedBy,
+                ModifiedBy: user.ModifiedBy
+            );
+        }
+    }
+}

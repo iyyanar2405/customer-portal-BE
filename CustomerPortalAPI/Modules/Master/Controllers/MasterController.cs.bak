@@ -1,0 +1,433 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Master.Repositories;
+using CustomerPortalAPI.Modules.Master.Entities;
+
+namespace CustomerPortalAPI.Modules.Master.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MasterController : ControllerBase
+    {
+        private readonly ICountryRepository _countryRepository;
+        private readonly ICityRepository _cityRepository;
+        private readonly ICompanyRepository _companyRepository;
+        private readonly ISiteRepository _siteRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IRoleRepository _roleRepository;
+
+        public MasterController(
+            ICountryRepository countryRepository,
+            ICityRepository cityRepository,
+            ICompanyRepository companyRepository,
+            ISiteRepository siteRepository,
+            IServiceRepository serviceRepository,
+            IRoleRepository roleRepository)
+        {
+            _countryRepository = countryRepository;
+            _cityRepository = cityRepository;
+            _companyRepository = companyRepository;
+            _siteRepository = siteRepository;
+            _serviceRepository = serviceRepository;
+            _roleRepository = roleRepository;
+        }
+
+        #region Countries
+
+        /// <summary>
+        /// Get all countries
+        /// </summary>
+        [HttpGet("countries")]
+        public async Task<ActionResult<IEnumerable<CountryType>>> GetCountries()
+        {
+            try
+            {
+                var countries = await _countryRepository.GetAllAsync();
+                var result = countries.Select(MapToCountryType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get country by ID
+        /// </summary>
+        [HttpGet("countries/{id}")]
+        public async Task<ActionResult<CountryType>> GetCountry(int id)
+        {
+            try
+            {
+                var country = await _countryRepository.GetByIdAsync(id);
+                if (country == null)
+                    return NotFound(new { message = $"Country with ID {id} not found" });
+
+                return Ok(MapToCountryType(country));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get active countries
+        /// </summary>
+        [HttpGet("countries/active")]
+        public async Task<ActionResult<IEnumerable<CountryType>>> GetActiveCountries()
+        {
+            try
+            {
+                var countries = await _countryRepository.GetActiveCountriesAsync();
+                var result = countries.Select(MapToCountryType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Cities
+
+        /// <summary>
+        /// Get all cities
+        /// </summary>
+        [HttpGet("cities")]
+        public async Task<ActionResult<IEnumerable<CityType>>> GetCities([FromQuery] int? countryId = null)
+        {
+            try
+            {
+                IEnumerable<City> cities;
+                if (countryId.HasValue)
+                    cities = await _cityRepository.GetByCountryAsync(countryId.Value);
+                else
+                    cities = await _cityRepository.GetAllAsync();
+
+                var result = cities.Select(MapToCityType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get city by ID
+        /// </summary>
+        [HttpGet("cities/{id}")]
+        public async Task<ActionResult<CityType>> GetCity(int id)
+        {
+            try
+            {
+                var city = await _cityRepository.GetByIdAsync(id);
+                if (city == null)
+                    return NotFound(new { message = $"City with ID {id} not found" });
+
+                return Ok(MapToCityType(city));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Companies
+
+        /// <summary>
+        /// Get all companies
+        /// </summary>
+        [HttpGet("companies")]
+        public async Task<ActionResult<IEnumerable<CompanyType>>> GetCompanies(
+            [FromQuery] int? countryId = null,
+            [FromQuery] int? cityId = null,
+            [FromQuery] bool? isActive = null)
+        {
+            try
+            {
+                var companies = await _companyRepository.GetAllAsync();
+
+                // Apply filters
+                if (countryId.HasValue)
+                    companies = companies.Where(c => c.CountryId == countryId);
+
+                if (cityId.HasValue)
+                    companies = companies.Where(c => c.CityId == cityId);
+
+                if (isActive.HasValue)
+                    companies = companies.Where(c => c.IsActive == isActive);
+
+                var result = companies.Select(MapToCompanyType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get company by ID
+        /// </summary>
+        [HttpGet("companies/{id}")]
+        public async Task<ActionResult<CompanyType>> GetCompany(int id)
+        {
+            try
+            {
+                var company = await _companyRepository.GetByIdAsync(id);
+                if (company == null)
+                    return NotFound(new { message = $"Company with ID {id} not found" });
+
+                return Ok(MapToCompanyType(company));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Sites
+
+        /// <summary>
+        /// Get all sites
+        /// </summary>
+        [HttpGet("sites")]
+        public async Task<ActionResult<IEnumerable<SiteType>>> GetSites([FromQuery] int? companyId = null)
+        {
+            try
+            {
+                IEnumerable<Site> sites;
+                if (companyId.HasValue)
+                    sites = await _siteRepository.GetByCompanyAsync(companyId.Value);
+                else
+                    sites = await _siteRepository.GetAllAsync();
+
+                var result = sites.Select(MapToSiteType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get site by ID
+        /// </summary>
+        [HttpGet("sites/{id}")]
+        public async Task<ActionResult<SiteType>> GetSite(int id)
+        {
+            try
+            {
+                var site = await _siteRepository.GetByIdAsync(id);
+                if (site == null)
+                    return NotFound(new { message = $"Site with ID {id} not found" });
+
+                return Ok(MapToSiteType(site));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Services
+
+        /// <summary>
+        /// Get all services
+        /// </summary>
+        [HttpGet("services")]
+        public async Task<ActionResult<IEnumerable<ServiceType>>> GetServices()
+        {
+            try
+            {
+                var services = await _serviceRepository.GetAllAsync();
+                var result = services.Select(MapToServiceType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get service by ID
+        /// </summary>
+        [HttpGet("services/{id}")]
+        public async Task<ActionResult<ServiceType>> GetService(int id)
+        {
+            try
+            {
+                var service = await _serviceRepository.GetByIdAsync(id);
+                if (service == null)
+                    return NotFound(new { message = $"Service with ID {id} not found" });
+
+                return Ok(MapToServiceType(service));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Roles
+
+        /// <summary>
+        /// Get all roles
+        /// </summary>
+        [HttpGet("roles")]
+        public async Task<ActionResult<IEnumerable<RoleType>>> GetRoles()
+        {
+            try
+            {
+                var roles = await _roleRepository.GetAllAsync();
+                var result = roles.Select(MapToRoleType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get role by ID
+        /// </summary>
+        [HttpGet("roles/{id}")]
+        public async Task<ActionResult<RoleType>> GetRole(int id)
+        {
+            try
+            {
+                var role = await _roleRepository.GetByIdAsync(id);
+                if (role == null)
+                    return NotFound(new { message = $"Role with ID {id} not found" });
+
+                return Ok(MapToRoleType(role));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Mapping Methods
+
+        private static CountryType MapToCountryType(Country country)
+        {
+            return new CountryType(
+                Id: country.CountryId,
+                CountryName: country.CountryName,
+                CountryCode: country.CountryCode,
+                CountryCodeAlpha2: country.CountryCodeAlpha2,
+                Region: country.Region,
+                Continent: country.Continent,
+                Currency: country.Currency,
+                DisplayOrder: country.DisplayOrder,
+                IsActive: country.IsActive,
+                CreatedDate: country.CreatedDate,
+                ModifiedDate: country.ModifiedDate
+            );
+        }
+
+        private static CityType MapToCityType(City city)
+        {
+            return new CityType(
+                Id: city.CityId,
+                CityName: city.CityName,
+                CountryId: city.CountryId,
+                StateProvince: city.StateProvince,
+                PostalCode: city.PostalCode,
+                TimeZone: city.TimeZone,
+                DisplayOrder: city.DisplayOrder,
+                IsActive: city.IsActive,
+                CreatedDate: city.CreatedDate,
+                ModifiedDate: city.ModifiedDate
+            );
+        }
+
+        private static CompanyType MapToCompanyType(Company company)
+        {
+            return new CompanyType(
+                Id: company.CompanyId,
+                CompanyName: company.CompanyName,
+                CompanyCode: company.CompanyCode,
+                Industry: company.Industry,
+                Website: company.Website,
+                Phone: company.Phone,
+                Email: company.Email,
+                Address: company.Address,
+                CityId: company.CityId,
+                CountryId: company.CountryId,
+                PostalCode: company.PostalCode,
+                CompanySize: company.CompanySize,
+                IsActive: company.IsActive,
+                CreatedDate: company.CreatedDate,
+                ModifiedDate: company.ModifiedDate
+            );
+        }
+
+        private static SiteType MapToSiteType(Site site)
+        {
+            return new SiteType(
+                Id: site.SiteId,
+                SiteName: site.SiteName,
+                SiteCode: site.SiteCode,
+                CompanyId: site.CompanyId,
+                Address: site.Address,
+                CityId: site.CityId,
+                CountryId: site.CountryId,
+                PostalCode: site.PostalCode,
+                Phone: site.Phone,
+                Email: site.Email,
+                SiteType: site.SiteType,
+                IsActive: site.IsActive,
+                CreatedDate: site.CreatedDate,
+                ModifiedDate: site.ModifiedDate
+            );
+        }
+
+        private static ServiceType MapToServiceType(Service service)
+        {
+            return new ServiceType(
+                Id: service.ServiceId,
+                ServiceName: service.ServiceName,
+                ServiceCode: service.ServiceCode,
+                Description: service.Description,
+                ServiceCategory: service.ServiceCategory,
+                IsActive: service.IsActive,
+                CreatedDate: service.CreatedDate,
+                ModifiedDate: service.ModifiedDate
+            );
+        }
+
+        private static RoleType MapToRoleType(Role role)
+        {
+            return new RoleType(
+                Id: role.RoleId,
+                RoleName: role.RoleName,
+                RoleCode: role.RoleCode,
+                Description: role.Description,
+                IsActive: role.IsActive,
+                CreatedDate: role.CreatedDate,
+                ModifiedDate: role.ModifiedDate
+            );
+        }
+
+        #endregion
+    }
+}

@@ -1,0 +1,184 @@
+using Microsoft.AspNetCore.Mvc;
+using CustomerPortalAPI.Modules.Financial.Repositories;
+using CustomerPortalAPI.Modules.Financial.Entities;
+using CustomerPortalAPI.Modules.Financial.GraphQL;
+
+namespace CustomerPortalAPI.Modules.Financial.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class FinancialController : ControllerBase
+    {
+        private readonly IFinancialRepository _financialRepository;
+        private readonly IInvoiceRepository _invoiceRepository;
+
+        public FinancialController(
+            IFinancialRepository financialRepository,
+            IInvoiceRepository invoiceRepository)
+        {
+            _financialRepository = financialRepository;
+            _invoiceRepository = invoiceRepository;
+        }
+
+        #region Financial Records
+
+        /// <summary>
+        /// Get all financial records
+        /// </summary>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<FinancialType>>> GetFinancialRecords(
+            [FromQuery] int? companyId = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var financials = await _financialRepository.GetAllAsync();
+
+                if (companyId.HasValue)
+                    financials = financials.Where(f => f.CompanyId == companyId);
+
+                var pagedFinancials = financials.Skip(skip).Take(take);
+                var result = pagedFinancials.Select(MapToFinancialType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get financial record by ID
+        /// </summary>
+        [HttpGet("{id}")]
+        public async Task<ActionResult<FinancialType>> GetFinancial(int id)
+        {
+            try
+            {
+                var financial = await _financialRepository.GetByIdAsync(id);
+                if (financial == null)
+                    return NotFound(new { message = $"Financial record with ID {id} not found" });
+
+                return Ok(MapToFinancialType(financial));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Invoices
+
+        /// <summary>
+        /// Get all invoices
+        /// </summary>
+        [HttpGet("invoices")]
+        public async Task<ActionResult<IEnumerable<InvoiceType>>> GetInvoices(
+            [FromQuery] int? companyId = null,
+            [FromQuery] string? status = null,
+            [FromQuery] int skip = 0,
+            [FromQuery] int take = 50)
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetAllAsync();
+
+                if (companyId.HasValue)
+                    invoices = invoices.Where(i => i.CompanyId == companyId);
+
+                if (!string.IsNullOrEmpty(status))
+                    invoices = invoices.Where(i => i.Status == status);
+
+                var pagedInvoices = invoices.Skip(skip).Take(take);
+                var result = pagedInvoices.Select(MapToInvoiceType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get invoice by ID
+        /// </summary>
+        [HttpGet("invoices/{id}")]
+        public async Task<ActionResult<InvoiceType>> GetInvoice(int id)
+        {
+            try
+            {
+                var invoice = await _invoiceRepository.GetByIdAsync(id);
+                if (invoice == null)
+                    return NotFound(new { message = $"Invoice with ID {id} not found" });
+
+                return Ok(MapToInvoiceType(invoice));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get overdue invoices
+        /// </summary>
+        [HttpGet("invoices/overdue")]
+        public async Task<ActionResult<IEnumerable<InvoiceType>>> GetOverdueInvoices()
+        {
+            try
+            {
+                var invoices = await _invoiceRepository.GetOverdueInvoicesAsync();
+                var result = invoices.Select(MapToInvoiceType);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Mapping Methods
+
+        private static FinancialType MapToFinancialType(Financial financial)
+        {
+            return new FinancialType(
+                Id: financial.FinancialId,
+                CompanyId: financial.CompanyId,
+                TransactionType: financial.TransactionType,
+                Amount: financial.Amount,
+                Currency: financial.Currency,
+                TransactionDate: financial.TransactionDate,
+                Description: financial.Description,
+                ReferenceNumber: financial.ReferenceNumber,
+                IsActive: financial.IsActive,
+                CreatedDate: financial.CreatedDate,
+                ModifiedDate: financial.ModifiedDate
+            );
+        }
+
+        private static InvoiceType MapToInvoiceType(Invoice invoice)
+        {
+            return new InvoiceType(
+                Id: invoice.InvoiceId,
+                InvoiceNumber: invoice.InvoiceNumber,
+                CompanyId: invoice.CompanyId,
+                InvoiceDate: invoice.InvoiceDate,
+                DueDate: invoice.DueDate,
+                Amount: invoice.Amount,
+                Currency: invoice.Currency,
+                Status: invoice.Status,
+                Description: invoice.Description,
+                IsActive: invoice.IsActive,
+                CreatedDate: invoice.CreatedDate,
+                ModifiedDate: invoice.ModifiedDate
+            );
+        }
+
+        #endregion
+    }
+}
