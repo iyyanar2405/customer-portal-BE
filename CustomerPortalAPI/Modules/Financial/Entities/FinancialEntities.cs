@@ -5,7 +5,7 @@ using CustomerPortalAPI.Modules.Master.Entities;
 namespace CustomerPortalAPI.Modules.Financial.Entities
 {
     [Table("Financials")]
-    public class Financial
+    public class FinancialTransaction
     {
         [Key]
         public int Id { get; set; }

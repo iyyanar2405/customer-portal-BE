@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\POC\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj": {}
+    "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj": {}
   },
   "projects": {
-    "C:\\POC\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj": {
+    "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\POC\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj",
+        "projectUniqueName": "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj",
         "projectName": "CustomerPortalAPI",
-        "projectPath": "C:\\POC\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj",
+        "projectPath": "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\CustomerPortalAPI\\CustomerPortalAPI.csproj",
         "packagesPath": "C:\\Users\\iyyan\\.nuget\\packages\\",
-        "outputPath": "C:\\POC\\customer-portal-BE\\CustomerPortalAPI\\obj\\",
+        "outputPath": "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\CustomerPortalAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

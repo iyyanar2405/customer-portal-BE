@@ -6,9 +6,11 @@ using CustomerPortalAPI.Modules.Contracts.Entities;
 using CustomerPortalAPI.Modules.Financial.Entities;
 using CustomerPortalAPI.Modules.Master.Entities;
 using CustomerPortalAPI.Modules.Users.Entities;
-// using CustomerPortalAPI.Modules.Findings.Entities;
-// using CustomerPortalAPI.Modules.Notifications.Entities;
-// using CustomerPortalAPI.Modules.Settings.Entities;
+using CustomerPortalAPI.Modules.Findings.Entities;
+using CustomerPortalAPI.Modules.Notifications.Entities;
+using CustomerPortalAPI.Modules.Settings.Entities;
+using CustomerPortalAPI.Modules.Overview.Entities;
+using CustomerPortalAPI.Modules.Widgets.Entities;
 
 namespace CustomerPortalAPI.Data
 {
@@ -44,17 +46,33 @@ namespace CustomerPortalAPI.Data
         public DbSet<ContractSite> ContractSites { get; set; }
 
         // Financial Module
-        public DbSet<Financial> Financials { get; set; }
+        public DbSet<FinancialTransaction> Financials { get; set; }
         public DbSet<InvoiceAuditLog> InvoiceAuditLogs { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
 
-        // Findings Module - entities to be implemented
-        // public DbSet<FindingCategory> FindingCategories { get; set; }
-        // public DbSet<FindingClause> FindingClauses { get; set; }
-        // public DbSet<FindingFocusArea> FindingFocusAreas { get; set; }
-        // public DbSet<FindingResponse> FindingResponses { get; set; }
-        // public DbSet<Finding> Findings { get; set; }
-        // public DbSet<FindingStatus> FindingStatuses { get; set; }
+        // Findings Module
+        public DbSet<FindingCategory> FindingCategories { get; set; }
+        public DbSet<Finding> Findings { get; set; }
+        public DbSet<FindingStatus> FindingStatuses { get; set; }
+
+        // Notifications Module
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<NotificationCategory> NotificationCategories { get; set; }
+
+        // Settings Module
+        public DbSet<Training> Trainings { get; set; }
+        public DbSet<ErrorLog> ErrorLogs { get; set; }
+
+        // Overview Module
+        public DbSet<OverviewDashboard> OverviewDashboards { get; set; }
+        public DbSet<OverviewMetric> OverviewMetrics { get; set; }
+        public DbSet<OverviewReport> OverviewReports { get; set; }
+
+        // Widgets Module
+        public DbSet<Widget> Widgets { get; set; }
+        public DbSet<WidgetCategory> WidgetCategories { get; set; }
+        public DbSet<WidgetUserAccess> WidgetUserAccesses { get; set; }
+        public DbSet<WidgetData> WidgetData { get; set; }
 
         // Master Module
         public DbSet<Chapter> Chapters { get; set; }
@@ -129,17 +147,33 @@ namespace CustomerPortalAPI.Data
             modelBuilder.Entity<ContractSite>().ToTable("ContractSites");
 
             // Financial Module
-            modelBuilder.Entity<Financial>().ToTable("Financials");
+            modelBuilder.Entity<FinancialTransaction>().ToTable("Financials");
             modelBuilder.Entity<InvoiceAuditLog>().ToTable("InvoiceAuditLog");
             modelBuilder.Entity<Invoice>().ToTable("Invoices");
 
-            // Findings Module - table configurations to be implemented
-            // modelBuilder.Entity<FindingCategory>().ToTable("FindingCategories");
-            // modelBuilder.Entity<FindingClause>().ToTable("FindingClauses");
-            // modelBuilder.Entity<FindingFocusArea>().ToTable("FindingFocusAreas");
-            // modelBuilder.Entity<FindingResponse>().ToTable("FindingResponses");
-            // modelBuilder.Entity<Finding>().ToTable("Findings");
-            // modelBuilder.Entity<FindingStatus>().ToTable("FindingStatuses");
+            // Findings Module
+            modelBuilder.Entity<FindingCategory>().ToTable("FindingCategories");
+            modelBuilder.Entity<Finding>().ToTable("Findings");
+            modelBuilder.Entity<FindingStatus>().ToTable("FindingStatuses");
+
+            // Notifications Module
+            modelBuilder.Entity<Notification>().ToTable("Notifications");
+            modelBuilder.Entity<NotificationCategory>().ToTable("NotificationCategories");
+
+            // Settings Module
+            modelBuilder.Entity<Training>().ToTable("Trainings");
+            modelBuilder.Entity<ErrorLog>().ToTable("ErrorLogs");
+
+            // Overview Module
+            modelBuilder.Entity<OverviewDashboard>().ToTable("OverviewDashboard");
+            modelBuilder.Entity<OverviewMetric>().ToTable("OverviewMetrics");
+            modelBuilder.Entity<OverviewReport>().ToTable("OverviewReports");
+
+            // Widgets Module
+            modelBuilder.Entity<Widget>().ToTable("Widgets");
+            modelBuilder.Entity<WidgetCategory>().ToTable("WidgetCategories");
+            modelBuilder.Entity<WidgetUserAccess>().ToTable("WidgetUserAccess");
+            modelBuilder.Entity<WidgetData>().ToTable("WidgetData");
 
             // Master Module
             modelBuilder.Entity<Chapter>().ToTable("Chapters");
