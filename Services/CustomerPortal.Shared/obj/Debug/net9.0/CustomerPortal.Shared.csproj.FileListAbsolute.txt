@@ -1,0 +1,13 @@
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.csproj.AssemblyReference.cache
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.AssemblyInfoInputs.cache
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.AssemblyInfo.cs
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.csproj.CoreCompileInputs.cache
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.sourcelink.json
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\bin\Debug\net9.0\CustomerPortal.Shared.deps.json
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\bin\Debug\net9.0\CustomerPortal.Shared.dll
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\bin\Debug\net9.0\CustomerPortal.Shared.pdb
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.dll
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\refint\CustomerPortal.Shared.dll
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\CustomerPortal.Shared.pdb
+C:\POC\local\customer-portalBE\customer-portal-BE\Services\CustomerPortal.Shared\obj\Debug\net9.0\ref\CustomerPortal.Shared.dll

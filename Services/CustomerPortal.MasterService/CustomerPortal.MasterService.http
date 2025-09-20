@@ -1,0 +1,6 @@
+@CustomerPortal.MasterService_HostAddress = http://localhost:5067
+
+GET {{CustomerPortal.MasterService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

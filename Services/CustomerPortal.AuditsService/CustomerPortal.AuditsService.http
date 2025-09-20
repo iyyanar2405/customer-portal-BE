@@ -1,0 +1,6 @@
+@CustomerPortal.AuditsService_HostAddress = http://localhost:5009
+
+GET {{CustomerPortal.AuditsService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

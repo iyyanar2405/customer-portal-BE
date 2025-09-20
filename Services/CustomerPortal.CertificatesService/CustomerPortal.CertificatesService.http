@@ -1,0 +1,6 @@
+@CustomerPortal.CertificatesService_HostAddress = http://localhost:5277
+
+GET {{CustomerPortal.CertificatesService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

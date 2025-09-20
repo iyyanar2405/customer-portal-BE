@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "faw1XmLpLHU=",
+  "success": true,
+  "projectFilePath": "C:\\POC\\local\\customer-portalBE\\customer-portal-BE\\Services\\CustomerPortal.CertificatesService\\CustomerPortal.CertificatesService.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\iyyan\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.8\\microsoft.aspnetcore.openapi.9.0.8.nupkg.sha512",
+    "C:\\Users\\iyyan\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,6 @@
+@CustomerPortal.NotificationsService_HostAddress = http://localhost:5202
+
+GET {{CustomerPortal.NotificationsService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,0 +1,6 @@
+@CustomerPortal.FindingsService_HostAddress = http://localhost:5218
+
+GET {{CustomerPortal.FindingsService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

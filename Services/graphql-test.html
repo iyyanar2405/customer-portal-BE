@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Portal GraphQL Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .service { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .service h3 { color: #333; margin-top: 0; }
+        .endpoints { margin: 10px 0; }
+        .endpoint { margin: 5px 0; }
+        .endpoint a { color: #0066cc; text-decoration: none; }
+        .endpoint a:hover { text-decoration: underline; }
+        .status { padding: 3px 8px; border-radius: 3px; font-size: 12px; }
+        .running { background: #d4edda; color: #155724; }
+        .stopped { background: #f8d7da; color: #721c24; }
+        .query-examples { margin-top: 10px; }
+        .query { background: #f5f5f5; padding: 10px; border-radius: 3px; margin: 5px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Customer Portal GraphQL Services</h1>
+    <p>This page provides quick access to all GraphQL services and sample queries.</p>
+
+    <div class="service">
+        <h3>🏗️ Master Service <span class="status running">RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5003/graphql" target="_blank">http://localhost:5003/graphql</a></div>
+            <div class="endpoint">📖 <a href="http://localhost:5003/swagger" target="_blank">Swagger UI</a></div>
+        </div>
+        <div class="query-examples">
+            <h4>📝 Sample Queries:</h4>
+            <div class="query">
+# Get all countries
+query {
+  countries {
+    id
+    countryName
+    countryCode
+    region
+    cities {
+      id
+      cityName
+    }
+  }
+}
+            </div>
+            <div class="query">
+# Get companies with sites
+query {
+  companies {
+    id
+    companyName
+    companyCode
+    country {
+      countryName
+    }
+    sites {
+      id
+      siteName
+      siteCode
+    }
+  }
+}
+            </div>
+        </div>
+    </div>
+
+    <div class="service">
+        <h3>👥 Users Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5004/graphql" target="_blank">http://localhost:5004/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.UsersService --urls "http://localhost:5004"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>📊 Audits Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5002/graphql" target="_blank">http://localhost:5002/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.AuditsService --urls "http://localhost:5002"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>🎯 Actions Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5001/graphql" target="_blank">http://localhost:5001/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.ActionsService --urls "http://localhost:5001"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>📜 Certificates Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5005/graphql" target="_blank">http://localhost:5005/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.CertificatesService --urls "http://localhost:5005"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>📋 Contracts Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5006/graphql" target="_blank">http://localhost:5006/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.ContractsService --urls "http://localhost:5006"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>💰 Financial Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5007/graphql" target="_blank">http://localhost:5007/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.FinancialService --urls "http://localhost:5007"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>🔍 Findings Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5008/graphql" target="_blank">http://localhost:5008/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.FindingsService --urls "http://localhost:5008"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>🔔 Notifications Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5009/graphql" target="_blank">http://localhost:5009/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.NotificationsService --urls "http://localhost:5009"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>⚙️ Settings Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5010/graphql" target="_blank">http://localhost:5010/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.SettingsService --urls "http://localhost:5010"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>📈 Overview Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5011/graphql" target="_blank">http://localhost:5011/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.OverviewService --urls "http://localhost:5011"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>🧩 Widgets Service <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5012/graphql" target="_blank">http://localhost:5012/graphql</a></div>
+        </div>
+        <p><em>Start with: <code>dotnet run --project Services/CustomerPortal.WidgetsService --urls "http://localhost:5012"</code></em></p>
+    </div>
+
+    <div class="service">
+        <h3>🌐 API Gateway <span class="status stopped">NOT RUNNING</span></h3>
+        <div class="endpoints">
+            <div class="endpoint">📍 <a href="http://localhost:5000/graphql" target="_blank">http://localhost:5000/graphql</a></div>
+        </div>
+        <p><em>Unified endpoint aggregating all services</em></p>
+    </div>
+
+    <hr>
+    <h2>🛠️ Quick Commands</h2>
+    <div class="query-examples">
+        <h4>Start All Services:</h4>
+        <div class="query">
+# Open multiple terminals and run each service
+dotnet run --project Services/CustomerPortal.MasterService --urls "http://localhost:5003"
+dotnet run --project Services/CustomerPortal.UsersService --urls "http://localhost:5004"
+dotnet run --project Services/CustomerPortal.AuditsService --urls "http://localhost:5002"
+# ... and so on for each service
+        </div>
+    </div>
+</body>
+</html>

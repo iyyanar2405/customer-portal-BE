@@ -1,0 +1,6 @@
+@CustomerPortal.WidgetsService_HostAddress = http://localhost:5266
+
+GET {{CustomerPortal.WidgetsService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
